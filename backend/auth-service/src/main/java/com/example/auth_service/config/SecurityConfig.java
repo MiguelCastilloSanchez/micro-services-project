@@ -17,11 +17,12 @@ public class SecurityConfig {
         http
             .csrf().disable()
             .authorizeRequests()
-            .requestMatchers("/auth/register").permitAll()  // Permitir acceso público al registro
-            .requestMatchers("/h2-console/**").permitAll()  // Permitir acceso público a la consola H2
+            .requestMatchers("/auth/register").permitAll()
+            .requestMatchers("/auth/login").permitAll()  
+            .requestMatchers("/h2-console/**").permitAll()
             .anyRequest().authenticated()
             .and()
-            .headers().frameOptions().disable()  // Necesario para permitir que la consola H2 se cargue en un iframe
+            .headers().frameOptions().disable()
             .and()
             .httpBasic();
         return http.build();
