@@ -1,5 +1,6 @@
 package com.example.auth_service.filter;
 
+import com.example.auth_service.service.TokenService;
 import com.example.auth_service.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private TokenService tokenService;
+
     @Override
     protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request,
             jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain chain)
@@ -38,7 +42,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtUtil.validateToken(jwt, userDetails)) {
+            if (jwtUtil.validateToken(jwt, userDetails) && !tokenService.isTokenRevoked(jwt)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken

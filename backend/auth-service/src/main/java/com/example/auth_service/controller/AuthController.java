@@ -3,10 +3,12 @@ package com.example.auth_service.controller;
 import com.example.auth_service.dto.UpdatePasswordRequest;
 import com.example.auth_service.dto.UpdateUsernameRequest;
 import com.example.auth_service.model.User;
+import com.example.auth_service.service.TokenService;
 import com.example.auth_service.service.UserService;
 import com.example.auth_service.util.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,9 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private TokenService tokenService;
 
     public AuthController(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userService = userService;
@@ -82,6 +87,15 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userService.saveUser(user);
         return "Password updated successfully";
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String jwt = authorizationHeader.substring(7);
+            tokenService.revokeToken(jwt);
+        }
+        return ResponseEntity.ok("Logout successful");
     }
 
     @PostMapping("/delete")
