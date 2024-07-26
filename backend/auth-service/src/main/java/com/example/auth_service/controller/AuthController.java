@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -75,13 +74,18 @@ public class AuthController {
     }
 
     @PostMapping("/update-username")
-    public ResponseEntity<String> updateUsername(@RequestBody UpdateUsernameRequest request, Principal principal) {
+    public ResponseEntity<String> updateUsername(@Valid @RequestBody UpdateUsernameRequest request, BindingResult bindingResult, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
         }
         if (userService.findByUsername(request.getNewUsername()) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Username is already taken");
+        }
+        if (bindingResult.hasErrors()) {
+            StringBuilder errors = new StringBuilder();
+            bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
         }
         user.setUsername(request.getNewUsername());
         userService.saveUser(user);
@@ -89,13 +93,18 @@ public class AuthController {
     }
 
     @PostMapping("/update-password")
-    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequest request, Principal principal) {
+    public ResponseEntity<String> updatePassword(@Valid @RequestBody UpdatePasswordRequest request, BindingResult bindingResult, Principal principal) { 
         User user = userService.findByUsername(principal.getName());
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
         }
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Old password is incorrect");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Old password is incorrect");
+        }
+        if (bindingResult.hasErrors()) {
+            StringBuilder errors = new StringBuilder();
+            bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userService.saveUser(user);
@@ -111,9 +120,16 @@ public class AuthController {
         return ResponseEntity.ok("Logout successful");
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(Principal principal) {
-        userService.deleteUser(principal.getName());
+        String username = principal.getName();
+        User user = userService.findByUsername(username);
+        
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
+        }
+        
+        userService.deleteUser(username);
         return ResponseEntity.ok("User deleted successfully");
     }
 
