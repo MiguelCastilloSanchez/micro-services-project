@@ -1,5 +1,6 @@
 package com.example.auth_service.controller;
 
+import com.example.auth_service.dto.RegisterUserRequest;
 import com.example.auth_service.dto.UpdatePasswordRequest;
 import com.example.auth_service.dto.UpdateUsernameRequest;
 import com.example.auth_service.model.User;
@@ -7,9 +8,14 @@ import com.example.auth_service.service.TokenService;
 import com.example.auth_service.service.UserService;
 import com.example.auth_service.util.JwtUtil;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -39,58 +45,65 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody User user) {
-        if (userService.findByUsername(user.getUsername()) != null) {
-            return "Error: Username is already taken";
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder errors = new StringBuilder();
+            bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userService.findByUsername(request.getUsername()) != null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Username is already taken");
+        }
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         userService.saveUser(user);
-        return "User registered successfully";
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 
     @PostMapping("/login")
-    public Map<String, String> loginUser(@RequestBody User loginRequest) {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody User loginRequest) {
         User user = userService.findByUsername(loginRequest.getUsername());
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             String token = jwtUtil.generateToken(user.getUsername());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
-            return response;
+            return ResponseEntity.ok(response);
         } else {
-            throw new RuntimeException("Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
         }
     }
 
     @PostMapping("/update-username")
-    public String updateUsername(@RequestBody UpdateUsernameRequest request, Principal principal) {
+    public ResponseEntity<String> updateUsername(@RequestBody UpdateUsernameRequest request, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         if (userService.findByUsername(request.getNewUsername()) != null) {
-            return "Error: Username is already taken";
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken");
         }
         user.setUsername(request.getNewUsername());
         userService.saveUser(user);
-        return "Username updated successfully";
+        return ResponseEntity.ok("Username updated successfully");
     }
 
     @PostMapping("/update-password")
-    public String updatePassword(@RequestBody UpdatePasswordRequest request, Principal principal) {
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequest request, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         if (user == null) {
-            throw new RuntimeException("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            return "Error: Old password is incorrect";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Old password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userService.saveUser(user);
-        return "Password updated successfully";
+        return ResponseEntity.ok("Password updated successfully");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<String> logoutUser(@RequestHeader("Authorization") String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String jwt = authorizationHeader.substring(7);
             tokenService.revokeToken(jwt);
@@ -99,8 +112,9 @@ public class AuthController {
     }
 
     @PostMapping("/delete")
-    public String deleteUser(Principal principal) {
+    public ResponseEntity<String> deleteUser(Principal principal) {
         userService.deleteUser(principal.getName());
-        return "User deleted successfully";
+        return ResponseEntity.ok("User deleted successfully");
     }
+
 }
