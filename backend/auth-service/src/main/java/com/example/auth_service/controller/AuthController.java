@@ -1,50 +1,92 @@
 package com.example.auth_service.controller;
 
+import com.example.auth_service.dto.UpdatePasswordRequest;
+import com.example.auth_service.dto.UpdateUsernameRequest;
 import com.example.auth_service.model.User;
-import com.example.auth_service.repository.UserRepository;
+import com.example.auth_service.service.UserService;
+import com.example.auth_service.util.JwtUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserService userService;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    public AuthController(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
     public String registerUser(@RequestBody User user) {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
+        if (userService.findByUsername(user.getUsername()) != null) {
             return "Error: Username is already taken";
-        }else{
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return "User registered successfully";
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userService.saveUser(user);
+        return "User registered successfully";
     }
 
     @PostMapping("/login")
     public Map<String, String> loginUser(@RequestBody User loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername());
-
+        User user = userService.findByUsername(loginRequest.getUsername());
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            // Aquí se devuelve un token JWT
+            String token = jwtUtil.generateToken(user.getUsername());
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Login successful");
+            response.put("token", token);
             return response;
         } else {
             throw new RuntimeException("Invalid username or password");
         }
     }
 
+    @PostMapping("/update-username")
+    public String updateUsername(@RequestBody UpdateUsernameRequest request, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        if (userService.findByUsername(request.getNewUsername()) != null) {
+            return "Error: Username is already taken";
+        }
+        user.setUsername(request.getNewUsername());
+        userService.saveUser(user);
+        return "Username updated successfully";
+    }
+
+    @PostMapping("/update-password")
+    public String updatePassword(@RequestBody UpdatePasswordRequest request, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            return "Error: Old password is incorrect";
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userService.saveUser(user);
+        return "Password updated successfully";
+    }
+
+    @PostMapping("/delete")
+    public String deleteUser(Principal principal) {
+        userService.deleteUser(principal.getName());
+        return "User deleted successfully";
+    }
 }
