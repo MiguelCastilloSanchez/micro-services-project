@@ -26,7 +26,7 @@ public class SecurityConfig {
         http.csrf().disable()
                 .authorizeRequests()
                 .requestMatchers("/user/register", "/user/login").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
+                //.requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         
