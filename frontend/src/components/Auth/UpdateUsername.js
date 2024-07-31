@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { updateUsername } from '../../api/auth';
+import { useNavigate } from 'react-router-dom';
 
 const UpdateUsername = ({ token }) => {
   const [newUsername, setNewUsername] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await updateUsername(newUsername, token);
-      // manejar éxito
+      navigate('/login'); 
     } catch (err) {
       setError('Error updating username');
     }

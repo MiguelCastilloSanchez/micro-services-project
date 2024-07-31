@@ -48,7 +48,7 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + errors.toString());
         }
         if (userService.findByUsername(request.getUsername()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Username is already taken");
@@ -86,7 +86,7 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + errors.toString());
         }
         user.setUsername(request.getNewUsername());
         userService.saveUser(user);
@@ -105,7 +105,7 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + errors.toString());
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userService.saveUser(user);

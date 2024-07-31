@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import UpdatePassword from '../components/Auth/UpdatePassword';
 
 const UpdatePasswordPage = () => {
-  const [token, setToken] = useState(localStorage.getItem('token')); // Asegúrate de que el token esté almacenado
+  const [token, setToken] = useState(localStorage.getItem('token')); 
 
   return (
     <div>

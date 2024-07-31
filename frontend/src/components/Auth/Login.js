@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { login } from '../../api/auth';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,7 +10,8 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     try {
       const response = await login(username, password);
-      onLogin(response.data.token);
+      const token = response.data.token;
+      localStorage.setItem('token', token);
     } catch (err) {
       setError('Invalid username or password');
     }
@@ -41,4 +42,3 @@ const Login = ({ onLogin }) => {
 };
 
 export default Login;
-

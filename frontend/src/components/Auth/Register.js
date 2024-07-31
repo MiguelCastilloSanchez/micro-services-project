@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { register } from '../../api/auth';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await register(username, password, email);
-      // redirigir al login u otra acción
+      navigate('/login'); 
     } catch (err) {
       setError('Error registering user');
     }

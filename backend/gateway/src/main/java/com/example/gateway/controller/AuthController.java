@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-
 @RestController
 @RequestMapping("/user")
 public class AuthController {
@@ -36,8 +35,14 @@ public class AuthController {
                 .uri(uri)
                 .headers(httpHeaders -> copyHeaders(headers, httpHeaders))
                 .body(Mono.justOrEmpty(body), String.class)
-                .retrieve()
-                .toEntity(String.class);
+                .exchangeToMono(clientResponse -> 
+                    clientResponse.toEntity(String.class)
+                )
+                .map(responseEntity -> 
+                    ResponseEntity.status(responseEntity.getStatusCode())
+                            .headers(responseEntity.getHeaders())
+                            .body(responseEntity.getBody())
+                );
     }
 
     private void copyHeaders(HttpHeaders from, HttpHeaders to) {
