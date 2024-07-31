@@ -10,14 +10,6 @@ export const login = async (username, password) => {
   return axios.post(`${API_URL}/login`, { username, password });
 };
 
-export const updateUsername = async (newUsername, token) => {
-  return axios.post(
-    `${API_URL}/update-username`,
-    { newUsername },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-};
-
 export const updatePassword = async (oldPassword, newPassword, token) => {
   return axios.post(
     `${API_URL}/update-password`,

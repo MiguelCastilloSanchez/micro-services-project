@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import UpdateUsername from './UpdateUsername';
 import UpdatePassword from './UpdatePassword';
 import { logout, deleteUser } from '../../api/auth';
+import { useNavigate } from 'react-router-dom';
 
-const Profile = ({ token }) => {
+const ProfilePage = () => {
+  const [token, setToken] = useState(localStorage.getItem('token'));
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -12,7 +12,8 @@ const Profile = ({ token }) => {
     try {
       await logout(token);
       localStorage.removeItem('token');
-      navigate('/login'); 
+      setToken(null);
+      navigate('/login');
     } catch (err) {
       setError('Error logging out');
     }
@@ -22,22 +23,32 @@ const Profile = ({ token }) => {
     try {
       await deleteUser(token);
       localStorage.removeItem('token');
-      navigate('/login'); 
+      setToken(null);
+      navigate('/login');
     } catch (err) {
       setError('Error deleting user');
     }
   };
 
+  const handleLogoutOnPasswordChange = () => {
+    setToken(null);
+  };
+
   return (
     <div>
       <h1>Profile</h1>
-      <UpdateUsername token={token} />
-      <UpdatePassword token={token} />
-      <button onClick={handleLogout}>Logout</button>
-      <button onClick={handleDelete}>Delete Account</button>
+      {token ? (
+        <>
+          <UpdatePassword token={token} onLogout={handleLogoutOnPasswordChange} />
+          <button onClick={handleLogout}>Logout</button>
+          <button onClick={handleDelete}>Delete Account</button>
+        </>
+      ) : (
+        <p>Please log in to view your profile.</p>
+      )}
       {error && <p>{error}</p>}
     </div>
   );
 };
 
-export default Profile;
+export default ProfilePage;

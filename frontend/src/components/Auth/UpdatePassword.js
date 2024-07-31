@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { updatePassword } from '../../api/auth';
+import { useNavigate } from 'react-router-dom';
+import { updatePassword, logout } from '../../api/auth';
 
-const UpdatePassword = ({ token }) => {
+const UpdatePassword = ({ token, onLogout }) => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await updatePassword(oldPassword, newPassword, token);
-      // manejar éxito
+      await logout(token); 
+      localStorage.removeItem('token');
+      onLogout();
+      navigate('/login');
     } catch (err) {
       setError('Error updating password');
     }
@@ -41,4 +46,3 @@ const UpdatePassword = ({ token }) => {
 };
 
 export default UpdatePassword;
-
