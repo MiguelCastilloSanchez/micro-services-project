@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { register } from '../../api/auth';
-import { useNavigate } from 'react-router-dom';
+import { TextField, Button, Typography, Box } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -9,47 +10,92 @@ const Register = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email || !username || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters long');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
     try {
       await register(username, password, email);
-      navigate('/login'); 
+      navigate('/login');
     } catch (err) {
-      setError('Error registering user');
+      if (err.response && err.response.data) {
+        setError(err.response.data);
+      } else {
+        setError('Error registering user');
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Username:</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      {error && <p>{error}</p>}
-      <button type="submit">Register</button>
-    </form>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4,
+        width: '100%',
+        p: 4,
+        borderRadius: 4,
+        boxShadow: 20,
+        backgroundColor: 'white',
+      }}
+    >
+      <Typography variant="h5">Register</Typography>
+      <TextField
+        label="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        fullWidth
+      />
+      <TextField
+        label="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        fullWidth
+      />
+      <TextField
+        label="Password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        fullWidth
+      />
+      {error && (
+        <Typography color="error">{error}</Typography>
+      )}
+      <Button type="submit" variant="contained" color="primary" sx={{ backgroundColor: '#240330' }}>
+        Register
+      </Button>
+      <Typography variant="body2">
+        Already have an account? <Link to="/login" style={{ color: '#240330' }}>Sign in here</Link>
+      </Typography>
+    </Box>
   );
 };
 
 export default Register;
-

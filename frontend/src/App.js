@@ -11,17 +11,27 @@ import Footer from './components/Footer';
 const App = () => {
   return (
     <div>
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/update-password" element={<UpdatePasswordPage />} />
-        </Routes>
-      </main>
-      <Footer />
+      <Routes>
+        <Route path="/login" element={<><LoginPage /><Footer /></>} />
+        <Route path="/register" element={<><RegisterPage /><Footer /></>} />
+        <Route
+          path="/*"
+          element={
+            <>
+              <Header />
+              <main>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/update-password" element={<UpdatePasswordPage />} />
+                  {/* Otras rutas aquí */}
+                </Routes>
+              </main>
+              <Footer />
+            </>
+          }
+        />
+      </Routes>
     </div>
   );
 };
