@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Box } from '@mui/material';
 import Login from '../components/Auth/Login';
 import loginImage from '../assets/caracal.jpeg';
+import { useLocation } from 'react-router-dom';
 
 const LoginPage = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state && location.state.alert) {
+      alert(location.state.alert);
+    }
+  }, [location]);
+
   return (
     <Grid container component="main" sx={{ height: '100vh', margin: 0, padding: 0 }}>
       <Grid
@@ -18,7 +27,7 @@ const LoginPage = () => {
             t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          boxShadow: '0px 0 20px 20px rgba(0,0,0,0.5)',
+          boxShadow: '0px 0px 20px 0px rgba(0,0,0,0.5)',
         }}
       />
       <Grid 
@@ -34,8 +43,8 @@ const LoginPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           p: 4,
-          backgroundColor: 'white',
-          boxShadow: '0px 0 20px 20px rgba(0,0,0,0.5)',
+          backgroundColor: '#E4DEE7',
+          boxShadow: '0px 0px 20px 0px rgba(0,0,0,0.5)',
           m: 0,
         }}
       >

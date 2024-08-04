@@ -65,7 +65,7 @@ const Register = () => {
         backgroundColor: 'white',
       }}
     >
-      <Typography variant="h5">Register</Typography>
+      <Typography variant="h5" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>Register</Typography>
       <TextField
         label="Email"
         value={email}

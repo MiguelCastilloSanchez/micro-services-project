@@ -16,7 +16,7 @@ const Login = () => {
       const response = await login(username, password);
       const token = response.data.token;
       localStorage.setItem('token', token);
-      navigate('/profile');
+      navigate('/home');
     } catch (err) {
       setError('Username or password incorrect, please try again');
     }
@@ -37,7 +37,7 @@ const Login = () => {
         backgroundColor: 'white',
       }}
     >
-      <Typography variant="h4">Reviews Site</Typography>
+      <Typography variant="h4" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>Reviews Site</Typography>
       <Typography variant="h5">Login</Typography>
       <TextField
         label="Username"
