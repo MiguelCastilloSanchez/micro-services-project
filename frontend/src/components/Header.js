@@ -1,10 +1,16 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import {Grid, Typography, Box, IconButton } from '@mui/material';
+import React , {useState} from 'react';
+import {Grid, Typography, Box, IconButton, Drawer } from '@mui/material';
 import ListIcon from '@mui/icons-material/List';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ProfilePage from '../pages/ProfilePage';
 
 const Header = () => {
+  const [open, setOpen] = React.useState(false);
+
+  const toggleDrawer = (newOpen) => () => {
+    setOpen(newOpen);
+  };
+
   return (
     <header>
       <Grid 
@@ -46,6 +52,7 @@ const Header = () => {
             Mike's Review Site
           </Typography>
           <IconButton
+            onClick={toggleDrawer(true)}
             sx={{
               scale: 10,
               transition: 'transform 0.2s',
@@ -61,6 +68,13 @@ const Header = () => {
           </IconButton>
         </Box>
       </Grid>
+      <Drawer 
+        open={open} 
+        onClose={toggleDrawer(false)}
+        anchor={'right'}
+      >
+        <ProfilePage/>
+      </Drawer>
     </header>
   );
 };

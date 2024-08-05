@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updatePassword, logout } from '../../api/auth';
+import { TextField, Button, Typography, Box } from '@mui/material';
 
 const UpdatePassword = ({ token, onLogout }) => {
   const [oldPassword, setOldPassword] = useState('');
@@ -22,26 +23,36 @@ const UpdatePassword = ({ token, onLogout }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Old Password:</label>
-        <input
-          type="password"
-          value={oldPassword}
-          onChange={(e) => setOldPassword(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>New Password:</label>
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </div>
-      {error && <p>{error}</p>}
-      <button type="submit">Update Password</button>
-    </form>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        width: '100%',
+      }}
+    >
+      <Typography variant="h6">Change Password</Typography>
+      <TextField
+        label="Old Password"
+        type="password"
+        value={oldPassword}
+        onChange={(e) => setOldPassword(e.target.value)}
+        fullWidth
+      />
+      <TextField
+        label="New Password"
+        type="password"
+        value={newPassword}
+        onChange={(e) => setNewPassword(e.target.value)}
+        fullWidth
+      />
+      {error && <Typography color="error">{error}</Typography>}
+      <Button type="submit" variant="contained" color="primary" sx={{ backgroundColor: '#240330' }}>
+        Change password
+      </Button>
+    </Box>    
   );
 };
 

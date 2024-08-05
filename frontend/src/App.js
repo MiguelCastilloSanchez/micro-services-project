@@ -21,11 +21,8 @@ const App = () => {
               <Header />
               <main>
                 <Routes>
-                  <Route path="/" element={<Home />} />
+                  <Route path="*" element={<Home />} />
                   <Route path="/home" element={<Home />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/update-password" element={<UpdatePasswordPage />} />
-                  {/* Otras rutas aquí */}
                 </Routes>
               </main>
               <Footer />

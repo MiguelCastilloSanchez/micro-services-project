@@ -15,7 +15,7 @@ const Home = () => {
   }, [navigate]);
 
   return (
-    <body>
+    <div>
       <Grid 
         container component="main" 
         sx={{ 
@@ -73,7 +73,7 @@ const Home = () => {
           
         </Grid>
       </Grid>
-    </body>
+    </div>
   );
 };
 

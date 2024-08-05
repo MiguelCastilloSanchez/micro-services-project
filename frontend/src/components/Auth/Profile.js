@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import UpdatePassword from './UpdatePassword';
 import { logout, deleteUser } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
+import { Button, Typography, Grid } from '@mui/material';
 
 const ProfilePage = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -36,15 +37,30 @@ const ProfilePage = () => {
 
   return (
     <div>
-      <h1>Profile</h1>
       {token ? (
+        <Grid
+        sx={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          p: 2,
+          m: 0,
+          gap: 4,
+        }}>
         <>
+          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>My Profile</Typography>
           <UpdatePassword token={token} onLogout={handleLogoutOnPasswordChange} />
-          <button onClick={handleLogout}>Logout</button>
-          <button onClick={handleDelete}>Delete Account</button>
+          <Button onClick={handleLogout} variant="contained" color="primary" sx={{ backgroundColor: 'white', width: '180px', color: 'black' }}>
+            Logout
+          </Button>
+          <Button onClick={handleDelete} variant="contained" color="primary" sx={{ backgroundColor: 'White', color: 'Blue', width: '180px' }}>
+            Delete account
+          </Button>
         </>
+        </Grid>
       ) : (
-        <p>Please log in to view your profile.</p>
+        <Typography color="error">{'User not logged'}</Typography>
       )}
       {error && <p>{error}</p>}
     </div>
