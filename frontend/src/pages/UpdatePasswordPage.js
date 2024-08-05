@@ -6,7 +6,6 @@ const UpdatePasswordPage = () => {
 
   return (
     <div>
-      <h1>Update Password</h1>
       <UpdatePassword token={token} />
     </div>
   );

@@ -3,8 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
-import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 

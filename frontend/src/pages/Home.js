@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {Grid, Typography, Box} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import AddPost from '../components/Posts/AddPost'
 
 const Home = () => {
   const [token, setToken] = useState(null);
@@ -70,7 +71,7 @@ const Home = () => {
             boxShadow: 'inset 0px 0px 20px 2px rgba(0,0,0,0.5)',
             height: '90vh',
           }}>
-          
+          <AddPost/>
         </Grid>
       </Grid>
     </div>

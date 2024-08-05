@@ -4,7 +4,7 @@ import { logout, deleteUser } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
 import { Button, Typography, Grid } from '@mui/material';
 
-const ProfilePage = () => {
+const Profile = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const ProfilePage = () => {
       setToken(null);
       navigate('/login');
     } catch (err) {
-      setError('Error logging out');
+      navigate('/login');
     }
   };
 
@@ -27,7 +27,7 @@ const ProfilePage = () => {
       setToken(null);
       navigate('/login');
     } catch (err) {
-      setError('Error deleting user');
+      navigate('/login');
     }
   };
 
@@ -67,4 +67,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default Profile;
