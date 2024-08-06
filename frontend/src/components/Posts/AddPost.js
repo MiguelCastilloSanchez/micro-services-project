@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-//import { login } from '../../api/posts';
+//import { addPost } from '../../api/posts';
 import { TextField, Button, Typography, Box } from '@mui/material';
 
 const AddPost = () => {
@@ -51,6 +51,7 @@ const AddPost = () => {
         flexDirection: 'column',
         gap: 2,
         width: '90%',
+        height: '80%',
         p: 0,
         backgroundColor: 'white',
       }}

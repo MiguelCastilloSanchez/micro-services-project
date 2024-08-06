@@ -30,7 +30,7 @@ const Header = () => {
           gap: 4,
           width: '100%',
           p: 2,
-          borderRadius: 6,
+          borderRadius: 10,
           backgroundColor: 'white',
           boxShadow: '0px 0px 20px 2px rgba(0,0,0,0.3)',
         }}

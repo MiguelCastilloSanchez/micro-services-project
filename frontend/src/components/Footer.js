@@ -1,5 +1,6 @@
 import React from 'react';
 import {Grid, Typography, Box} from '@mui/material';
+import CopyrightIcon from '@mui/icons-material/Copyright';
 
 const Footer = () => {
   return (
@@ -12,18 +13,19 @@ const Footer = () => {
         alignItems: 'center',
         p: 2,
         backgroundColor: '#240330',
-      }}>
+        }}>
         <Box
         sx={{
           display: 'flex',
           flexDirection: 'row',
-          gap: 4,
+          gap: 1,
           width: '100%',
           p: 2,
           backgroundColor: '#240330',
         }}
         >
-          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', color: 'white'}}>
+          <CopyrightIcon sx={{ fontSize: 30, color: 'white' }}/>
+          <Typography variant="h6" sx={{ flexGrow: 1, color: 'white'}}>
             Mike's Music Review Site
           </Typography>
         </Box>

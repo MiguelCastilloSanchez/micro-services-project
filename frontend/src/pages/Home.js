@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {Grid, Typography, Box} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddPost from '../components/Posts/AddPost'
+import Post from '../components/Posts/Post'
 
 const Home = () => {
   const [token, setToken] = useState(null);
@@ -27,7 +28,7 @@ const Home = () => {
           p: 2,
           backgroundColor: '#E4DEE7',
           m: 0,
-          height: '100vh', 
+          height: '100%', 
         }}>
         <Grid
           item
@@ -37,17 +38,15 @@ const Home = () => {
           sx={{ 
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'top',
             alignItems: 'center',
-            p: 2,
+            p: '40px 40px 0px 0px',
             backgroundColor: 'white',
             borderRadius: 1,
             boxShadow: 'inset 0px 0px 20px 2px rgba(0,0,0,0.5)',
             height: '90vh'
           }}>        
-          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', color: 'Black'}}>
-              Mike's Music Review Site
-          </Typography>
+          <Post/>
         </Grid>
         <Grid
           item 
