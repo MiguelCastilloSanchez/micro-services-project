@@ -2,7 +2,6 @@ package com.example.auth_service.controller;
 
 import com.example.auth_service.dto.RegisterUserRequest;
 import com.example.auth_service.dto.UpdatePasswordRequest;
-import com.example.auth_service.dto.UpdateUsernameRequest;
 import com.example.auth_service.model.User;
 import com.example.auth_service.service.TokenService;
 import com.example.auth_service.service.UserService;
@@ -10,16 +9,31 @@ import com.example.auth_service.util.JwtUtil;
 
 import jakarta.validation.Valid;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import com.example.auth_service.util.PathUtil;
+import org.springframework.core.io.Resource;
+
 
 @RestController
 @RequestMapping("/user")
@@ -36,6 +50,10 @@ public class AuthController {
 
     @Autowired
     private TokenService tokenService;
+
+    private static final String[] EXTENSIONS = {"jpg", "jpeg", "png"};
+    private static final String UPLOAD_DIR = "/app/profile-photos/";
+    private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(EXTENSIONS);
 
     public AuthController(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userService = userService;
@@ -74,23 +92,91 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/update-username")
-    public ResponseEntity<String> updateUsername(@Valid @RequestBody UpdateUsernameRequest request, BindingResult bindingResult, Principal principal) {
+    @PostMapping("/upload-profile-photo")
+    public ResponseEntity<String> uploadProfilePhoto(@RequestParam("file") MultipartFile file, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
         }
-        if (userService.findByUsername(request.getNewUsername()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Username is already taken");
+
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: File is empty");
         }
-        if (bindingResult.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            bindingResult.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append(" "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + errors.toString());
+
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        if (!ALLOWED_EXTENSIONS.contains(fileExtension.toLowerCase())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: File type is not supported. Only JPG, JPEG, and PNG are allowed.");
         }
-        user.setUsername(request.getNewUsername());
-        userService.saveUser(user);
-        return ResponseEntity.ok("Username updated successfully");
+
+        if (file.getSize() > 4 * 1024 * 1024) { // 4 MB
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: File size exceeds 4 MB limit.");
+        }
+
+        try {
+            String fileName = PathUtil.cleanPath(file.getOriginalFilename());
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            if (user.getProfilePhoto() != null) {
+                Path oldFilePath = Paths.get(UPLOAD_DIR).resolve(user.getProfilePhoto());
+                Files.deleteIfExists(oldFilePath);
+            }
+
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath);
+
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/user/profile-photos/")
+                    .path(fileName)
+                    .toUriString();
+
+            user.setProfilePhoto(fileName);
+            userService.saveUser(user);
+
+            return ResponseEntity.ok("Profile photo uploaded successfully");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Could not upload file");
+        }
+    }
+
+    @GetMapping("/profile-photo")
+    public ResponseEntity<Resource> getProfilePhoto(Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    
+        String profilePhotoUrl = user.getProfilePhoto();
+        if (profilePhotoUrl == null || profilePhotoUrl.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    
+        try {
+            Path file = Paths.get(UPLOAD_DIR).resolve(profilePhotoUrl.substring(profilePhotoUrl.lastIndexOf("/") + 1));
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/profile-photo-url")
+    public ResponseEntity<String> getProfilePhotoUrl(Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        if (user == null || user.getProfilePhoto() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User or profile photo not found");
+        }
+
+        return ResponseEntity.ok(user.getProfilePhoto());
     }
 
     @PostMapping("/update-password")

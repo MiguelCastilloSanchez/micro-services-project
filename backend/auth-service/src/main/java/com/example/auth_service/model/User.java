@@ -20,6 +20,8 @@ public class User {
     @NotEmpty(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
+    
+    private String profilePhoto;
 
     public Long getId() {
         return id;
@@ -51,5 +53,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 }

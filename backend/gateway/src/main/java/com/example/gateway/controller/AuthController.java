@@ -1,12 +1,15 @@
 package com.example.gateway.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/user")
@@ -22,11 +25,11 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-    public Mono<ResponseEntity<String>> proxyRequest(
+    public Mono<ResponseEntity<byte[]>> proxyRequest(
             @RequestHeader HttpHeaders headers,
-            @RequestBody(required = false) String body,
+            @RequestBody(required = false) byte[] body,
             HttpMethod method,
-            jakarta.servlet.http.HttpServletRequest request) {
+            HttpServletRequest request) {
 
         String requestPath = request.getRequestURI();
         String uri = authServiceUrl + requestPath;
@@ -34,9 +37,9 @@ public class AuthController {
         return webClient.method(method)
                 .uri(uri)
                 .headers(httpHeaders -> copyHeaders(headers, httpHeaders))
-                .body(Mono.justOrEmpty(body), String.class)
+                .body(Mono.justOrEmpty(body), byte[].class)
                 .exchangeToMono(clientResponse -> 
-                    clientResponse.toEntity(String.class)
+                    clientResponse.toEntity(byte[].class)
                 )
                 .map(responseEntity -> 
                     ResponseEntity.status(responseEntity.getStatusCode())

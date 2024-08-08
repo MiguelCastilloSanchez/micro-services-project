@@ -24,6 +24,7 @@ services:
       SPRING_CONFIG_ADDITIONAL_LOCATION: /config/external.properties
     volumes:
       - ~/Documentos/external.properties:/config/external.properties
+      - /app/profile-photos
     networks:
       - auth-network
 

@@ -33,7 +33,6 @@ const UpdatePassword = ({ token, onLogout }) => {
         width: '100%',
       }}
     >
-      <Typography variant="h6">Change Password</Typography>
       <TextField
         label="Old Password"
         type="password"
