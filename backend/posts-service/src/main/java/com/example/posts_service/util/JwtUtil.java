@@ -1,17 +1,14 @@
-package com.example.auth_service.util;
+package com.example.posts_service.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 @Component
@@ -19,9 +16,6 @@ public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secretKey;
-
-    @Value("${jwt.expiration}")
-    private long jwtExpirationInMillis;
 
     private Key key;
 
@@ -47,21 +41,8 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
-    public String generateToken(String username, Long userId) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);  // Incluye el userId como un claim
-        return createToken(claims, username);
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMillis))
-                .signWith(key).compact();
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token) {
+        return !isTokenExpired(token);
     }
 
     private Boolean isTokenExpired(String token) {
@@ -72,3 +53,5 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 }
+
+

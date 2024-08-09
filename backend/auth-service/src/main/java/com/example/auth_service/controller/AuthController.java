@@ -83,7 +83,7 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody User loginRequest) {
         User user = userService.findByUsername(loginRequest.getUsername());
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            String token = jwtUtil.generateToken(user.getUsername());
+            String token = jwtUtil.generateToken(user.getUsername(), user.getId());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             return ResponseEntity.ok(response);
@@ -169,16 +169,6 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/profile-photo-url")
-    public ResponseEntity<String> getProfilePhotoUrl(Principal principal) {
-        User user = userService.findByUsername(principal.getName());
-        if (user == null || user.getProfilePhoto() == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User or profile photo not found");
-        }
-
-        return ResponseEntity.ok(user.getProfilePhoto());
-    }
-
     @PostMapping("/update-password")
     public ResponseEntity<String> updatePassword(@Valid @RequestBody UpdatePasswordRequest request, BindingResult bindingResult, Principal principal) { 
         User user = userService.findByUsername(principal.getName());
@@ -215,7 +205,16 @@ public class AuthController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: User not found");
         }
-        
+
+        if (user.getProfilePhoto() != null) {
+            Path oldFilePath = Paths.get(UPLOAD_DIR).resolve(user.getProfilePhoto());
+            try {
+                Files.deleteIfExists(oldFilePath);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Problem removing profile photo");
+            }
+        }
+
         userService.deleteUser(username);
         return ResponseEntity.ok("User deleted successfully");
     }
