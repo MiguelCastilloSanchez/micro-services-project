@@ -3,9 +3,11 @@ import { Grid, Box, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddPost from '../components/Posts/AddPost';
 import Post from '../components/Posts/Post';
+import { getAllPosts } from '../api/posts';
 
 const Home = () => {
   const [token, setToken] = useState(null);
+  const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -16,6 +18,21 @@ const Home = () => {
       navigate('/login', { state: { alert: 'Please log in to enter.' } });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await getAllPosts(token);
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+
+    if (token) {
+      fetchPosts();
+    }
+  }, [token]);
 
   return (
     <Box 
@@ -45,9 +62,13 @@ const Home = () => {
             boxShadow: theme.shadows[3],
             p: 3,
             height: { xs: 'auto', md: '90vh' },
+            overflowY: 'scroll',
+            gap: 3,
           }}
         >
-          <Post />
+          {posts.map((post, index) => (
+            <Post key={index} post={post} />
+          ))}
         </Grid>
         
         <Grid 

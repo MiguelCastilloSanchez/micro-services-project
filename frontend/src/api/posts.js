@@ -9,3 +9,9 @@ export const createPost = async (artist, song, review, token) => {
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
+
+export const getAllPosts = async (token) => {
+  return axios.get(`${API_URL}/all`, 
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}

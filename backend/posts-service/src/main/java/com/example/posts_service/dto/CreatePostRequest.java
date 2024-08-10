@@ -1,21 +1,20 @@
 package com.example.posts_service.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 public class CreatePostRequest {
 
     @NotEmpty(message = "Song is required")
-    @Size(min = 1, max = 20, message = "Song must be at most 20 characters long")
+    @Size(min = 1, max = 40, message = "Song must be at most 40 characters long")
     private String song;
 
     @NotEmpty(message = "Artist is required")
-    @Size(min = 1, max = 20, message = "Artist must be at most 20 characters long")
+    @Size(min = 1, max = 40, message = "Artist must be at most 40 characters long")
     private String artist;
 
     @NotEmpty(message = "Review is required")
-    @Email(message = "Email must be between 10 and 200 characters")
+    @Size(min = 1, max = 300, message = "Review cannot exceed 300 characters")
     private String review;
 
     public String getSong() {

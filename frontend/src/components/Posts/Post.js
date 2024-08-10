@@ -9,23 +9,21 @@ const SmallAvatar = styled(Avatar)(({ theme }) => ({
   border: `2px solid ${theme.palette.background.paper}`,
 }));
 
-const Post = () => {
-  const artist = 'Twenty One Pilots';
-  const song = 'Addict With A Pen';
-  const review = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec.';
+const Post = ({ post }) => {
+  const { artist, song, review } = post;
 
   return (
     <Box
       sx={{ 
         width: '100%',
-        maxWidth: 500,
+        maxWidth: 650,
         boxShadow: '0px 4px 10px rgba(0,0,0,0.5)',
         padding: '16px',
         borderRadius: '8px',
         backgroundColor: '#fff',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        gap: 1,
         margin: 'auto',
       }}
     >

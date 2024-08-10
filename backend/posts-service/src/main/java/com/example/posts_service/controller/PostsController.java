@@ -7,6 +7,7 @@ import com.example.posts_service.util.JwtUtil;
 import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +50,17 @@ public class PostsController {
         post.setSong(request.getSong());
         post.setReview(request.getReview());
         post.setCreatedAt(LocalDateTime.now());
-
+        
         Post newPost = postService.createPost(post);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Post created successfully with ID: " + newPost.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Post created successfully");
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<Post>> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
+        Collections.reverse(posts);
+
         return ResponseEntity.ok(posts);
     }
 }

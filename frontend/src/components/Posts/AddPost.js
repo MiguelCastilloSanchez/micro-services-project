@@ -17,21 +17,6 @@ const AddPost = ({ token }) => {
       return;
     }
 
-    if (artist.length > 20) {
-      setError('Artist must be 20 characters as max.');
-      return;
-    }
-
-    if (song.length > 20) {
-      setError('Song must be 20 characters as max.');
-      return;
-    }
-
-    if (review.length > 300) {
-      setError('Your opinion cannot exceed 200 characters.');
-      return;
-    }
-
     try {
       await createPost(artist, song, review, token);
       setArtist('');
@@ -89,7 +74,7 @@ const AddPost = ({ token }) => {
           multiline
           rows={4}
           fullWidth
-          inputProps={{ maxLength: 200 }}
+          inputProps={{ maxLength: 300 }}
           helperText={`${review.length}/300`}
         />
 

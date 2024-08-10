@@ -21,6 +21,8 @@ public class Post {
 
     private String artist;
     private String song;
+
+    @Column(length = 300)
     private String review;
 
     @Column(name = "user_id", nullable = false)
