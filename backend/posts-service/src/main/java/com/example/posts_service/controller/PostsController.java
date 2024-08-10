@@ -2,6 +2,7 @@ package com.example.posts_service.controller;
 
 import com.example.posts_service.dto.CreatePostRequest;
 import com.example.posts_service.model.Post;
+import com.example.posts_service.service.LikeService;
 import com.example.posts_service.service.PostService;
 import com.example.posts_service.util.JwtUtil;
 import jakarta.validation.Valid;
@@ -22,11 +23,13 @@ public class PostsController {
 
     private final JwtUtil jwtUtil;
     private final PostService postService;
+    private final LikeService likeService;
 
     @Autowired
-    public PostsController(JwtUtil jwtUtil, PostService postService) {
+    public PostsController(JwtUtil jwtUtil, PostService postService, LikeService likeService) {
         this.jwtUtil = jwtUtil;
         this.postService = postService;
+        this.likeService = likeService;
     }
 
     @PostMapping("/create")
@@ -62,5 +65,58 @@ public class PostsController {
         Collections.reverse(posts);
 
         return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping("/like/{postId}")
+    public ResponseEntity<String> likePost(@PathVariable Long postId, @RequestHeader("Authorization") String token) {
+        if (!postService.doesPostExist(postId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: Post not found");
+        }
+
+        String cleanedToken = token.substring(7);
+        Long userId = jwtUtil.extractUserId(cleanedToken);
+
+        if (likeService.hasUserLikedPost(userId, postId)) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Error: User already liked the post");
+        }
+        likeService.likePost(userId, postId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Post liked successfully");
+    }
+
+    @DeleteMapping("/unlike/{postId}")
+    public ResponseEntity<String> unlikePost(@PathVariable Long postId, @RequestHeader("Authorization") String token) {
+        if (!postService.doesPostExist(postId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: Post not found");
+        }
+
+        String cleanedToken = token.substring(7);
+        Long userId = jwtUtil.extractUserId(cleanedToken);
+
+        if (!likeService.hasUserLikedPost(userId, postId)) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Error: User has not liked the post");
+        }
+        likeService.unlikePost(userId, postId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Post unliked successfully");
+    }
+
+    @DeleteMapping("/delete/{postId}")
+    public ResponseEntity<String> deletePost(
+        @PathVariable Long postId,
+        @RequestHeader("Authorization") String token) {
+    
+        if (!postService.doesPostExist(postId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: Post not found");
+        }
+
+        String cleanedToken = token.substring(7);
+        Long userId = jwtUtil.extractUserId(cleanedToken);
+
+        boolean isDeleted = postService.deletePostByIdAndUserId(postId, userId);
+
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatus.OK).body("Post deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Not the owner of the post LOL");
+        }
     }
 }

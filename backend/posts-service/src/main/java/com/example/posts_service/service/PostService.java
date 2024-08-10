@@ -27,8 +27,20 @@ public class PostService {
                 .orElseThrow(() -> new PostNotFoundException("Post with ID " + postId + " not found"));
     }
     
-    public void deletePost(Long id) {
-        postRepository.deleteById(id);
+    public boolean deletePostByIdAndUserId(Long postId, Long userId) {
+        Post post = getPostById(postId);
+    
+        if (post.getUserId().equals(userId)) {
+            postRepository.deleteById(postId);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+
+    public boolean doesPostExist(Long postId) {
+        return postRepository.existsById(postId);
     }
 }
 
