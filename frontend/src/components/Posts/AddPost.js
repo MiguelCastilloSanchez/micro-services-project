@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-//import { addPost } from '../../api/posts';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { createPost } from '../../api/posts'
+import { TextField, Button, Typography, Box, Container, Alert } from '@mui/material';
 
-const AddPost = () => {
+const AddPost = ({ token }) => {
   const [artist, setArtist] = useState('');
   const [song, setSong] = useState('');
   const [review, setReview] = useState('');
@@ -10,79 +10,98 @@ const AddPost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); 
 
     if (!artist || !song || !review) {
-        setError('Please fill in all fields');
-        return;
+      setError('Please fill in all fields.');
+      return;
     }
 
-    if (artist.length < 20) {
-        setError('Artist must be 20 characters as max');
-        return;
+    if (artist.length > 20) {
+      setError('Artist must be 20 characters as max.');
+      return;
     }
 
-    if (song.length < 20) {
-        setError('Song must be 20 characters as max');
-        return;
+    if (song.length > 20) {
+      setError('Song must be 20 characters as max.');
+      return;
     }
 
-    if (artist.length < 200) {
-        setError('Your opinion cannot overpass 200 characters');
-        return;
+    if (review.length > 300) {
+      setError('Your opinion cannot exceed 200 characters.');
+      return;
     }
 
     try {
-        //await addReviewPost(artist, song, review);
+      await createPost(artist, song, review, token);
+      setArtist('');
+      setSong('');
+      setReview('');
     } catch (err) {
-        if (err.response && err.response.data) {
-          setError(err.response.data);
-        } else {
-          setError('Error posting review');
-        }
+      if (err.response && err.response.data) {
+        setError(err.response.data);
+      } else {
+        setError('Error posting review.');
       }
+    }
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={NaN}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        width: '90%',
-        height: '80%',
-        p: 0,
-        backgroundColor: 'white',
-      }}
-    >
-      <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>Share your taste in music</Typography>
-      <TextField
-        label="Artist"
-        value={artist}
-        onChange={(e) => setArtist(e.target.value)}
-        fullWidth
-      />
-      <TextField
-        label="Song"
-        value={song}
-        onChange={(e) => setSong(e.target.value)}
-        fullWidth
-      />
-      <TextField
-        label="Your opinion..."
-        value={review}
-        multiline
-        rows={8}
-        onChange={(e) => setReview(e.target.value)}
-      />
-      {error && (
-        <Typography color="error">{error}</Typography>
-      )}
-      <Button type="submit" variant="contained" color="primary" sx={{ backgroundColor: '#240330' }}>
-        Post it!
-      </Button>
-    </Box>
+    <Container maxWidth="sm">
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          mt: 1,
+          p: 3,
+          backgroundColor: '#fff',
+        }}
+      >
+        <Typography variant="h5" align="center" fontWeight="bold">
+          Share your taste in music
+        </Typography>
+
+        <TextField
+          label="Artist"
+          value={artist}
+          onChange={(e) => setArtist(e.target.value)}
+          fullWidth
+          inputProps={{ maxLength: 20 }}
+          helperText={`${artist.length}/20`}
+        />
+
+        <TextField
+          label="Song"
+          value={song}
+          onChange={(e) => setSong(e.target.value)}
+          fullWidth
+          inputProps={{ maxLength: 20 }}
+          helperText={`${song.length}/20`}
+        />
+
+        <TextField
+          label="Your opinion..."
+          value={review}
+          onChange={(e) => setReview(e.target.value)}
+          multiline
+          rows={4}
+          fullWidth
+          inputProps={{ maxLength: 200 }}
+          helperText={`${review.length}/300`}
+        />
+
+        {error && (
+          <Alert severity="error">{error}</Alert>
+        )}
+
+        <Button type="submit" variant="contained" color="primary">
+          Post it!
+        </Button>
+      </Box>
+    </Container>
   );
 };
 

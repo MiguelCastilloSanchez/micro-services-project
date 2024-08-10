@@ -52,6 +52,10 @@ services:
       - "8080:8080"
     depends_on:
       - auth-service
+      - posts-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      POSTS_SERVICE_URL: http://posts-service:8082
     networks:
       - auth-network
 
@@ -66,4 +70,3 @@ services:
 networks:
   auth-network:
     driver: bridge
-

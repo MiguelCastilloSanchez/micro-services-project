@@ -8,27 +8,25 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @RestController
-@RequestMapping("/user")
-public class AuthController {
+@RequestMapping("/posts")
+public class PostsController {
 
     private final WebClient webClient;
 
-    @Value("${auth-service.url}")
+    @Value("${posts-service.url}")
     private String authServiceUrl;
 
-    public AuthController(WebClient.Builder webClientBuilder) {
+    public PostsController(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
 
     @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-    public Mono<ResponseEntity<byte[]>> proxyRequest(
+    public Mono<ResponseEntity<String>> proxyRequest(
             @RequestHeader HttpHeaders headers,
-            @RequestBody(required = false) byte[] body,
+            @RequestBody(required = false) String body,
             HttpMethod method,
-            HttpServletRequest request) {
+            jakarta.servlet.http.HttpServletRequest request) {
 
         String requestPath = request.getRequestURI();
         String uri = authServiceUrl + requestPath;
@@ -36,9 +34,9 @@ public class AuthController {
         return webClient.method(method)
                 .uri(uri)
                 .headers(httpHeaders -> copyHeaders(headers, httpHeaders))
-                .body(Mono.justOrEmpty(body), byte[].class)
+                .body(Mono.justOrEmpty(body), String.class)
                 .exchangeToMono(clientResponse -> 
-                    clientResponse.toEntity(byte[].class)
+                    clientResponse.toEntity(String.class)
                 )
                 .map(responseEntity -> 
                     ResponseEntity.status(responseEntity.getStatusCode())

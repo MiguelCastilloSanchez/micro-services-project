@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import {Grid, Typography, Box} from '@mui/material';
+import { Grid, Box, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import AddPost from '../components/Posts/AddPost'
-import Post from '../components/Posts/Post'
+import AddPost from '../components/Posts/AddPost';
+import Post from '../components/Posts/Post';
 
 const Home = () => {
   const [token, setToken] = useState(null);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
@@ -17,65 +18,59 @@ const Home = () => {
   }, [navigate]);
 
   return (
-    <div>
+    <Box 
+      sx={{
+        backgroundColor: '#E4DEE7',
+        minHeight: '100vh',
+        py: 4,
+        px: 2,
+      }}
+    >
       <Grid 
-        container component="main" 
-        sx={{ 
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: 2,
-          backgroundColor: '#E4DEE7',
-          m: 0,
-          height: '100%', 
-        }}>
-        <Grid
-          item
+        container 
+        spacing={2} 
+        justifyContent="center"
+        sx={{gap: 2}}
+      >
+        <Grid 
+          item 
           xs={12} 
-          sm={6}
-          md={7.6}
-          sx={{ 
+          md={7} 
+          sx={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'top',
             alignItems: 'center',
-            p: '40px 40px 0px 0px',
             backgroundColor: 'white',
-            borderRadius: 1,
-            boxShadow: 'inset 0px 0px 20px 2px rgba(0,0,0,0.5)',
-            height: '90vh'
-          }}>        
-          <Post/>
+            borderRadius: 2,
+            boxShadow: theme.shadows[3],
+            p: 3,
+            height: { xs: 'auto', md: '90vh' },
+          }}
+        >
+          <Post />
         </Grid>
-        <Grid
+        
+        <Grid 
           item 
-          xs={false}
-          sm={1} 
-          md={0.4}>
-        </Grid>
-        <Grid
-          item 
-          xs={false}
-          sm={5} 
-          md={3.3}
-          sx={{ 
+          xs={12} 
+          md={4} 
+          sx={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
             alignItems: 'center',
-            p: 2,
             backgroundColor: 'white',
-            borderRadius: 1,
-            boxShadow: 'inset 0px 0px 20px 2px rgba(0,0,0,0.5)',
-            height: '90vh',
-          }}>
-          <AddPost/>
+            borderRadius: 2,
+            boxShadow: theme.shadows[3],
+            p: 3,
+            mt: { xs: 2, md: 0 },
+            height: { xs: 'auto', md: '90vh' },
+          }}
+        >
+          <AddPost token={token}/>
         </Grid>
       </Grid>
-    </div>
+    </Box>
   );
 };
 
 export default Home;
-

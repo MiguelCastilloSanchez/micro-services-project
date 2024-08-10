@@ -48,7 +48,7 @@ const Header = () => {
           >
             <ListIcon sx={{ fontSize: 30 }}/>
           </IconButton>
-          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>
+          <Typography variant="h4" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold', color: '#292929' }}>
             Mike's Review Site
           </Typography>
           <IconButton

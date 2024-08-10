@@ -5,6 +5,10 @@ import com.example.posts_service.model.Post;
 import com.example.posts_service.service.PostService;
 import com.example.posts_service.util.JwtUtil;
 import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +48,16 @@ public class PostsController {
         post.setArtist(request.getArtist());
         post.setSong(request.getSong());
         post.setReview(request.getReview());
+        post.setCreatedAt(LocalDateTime.now());
 
         Post newPost = postService.createPost(post);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Post created successfully with ID: " + newPost.getId());
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Post>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
     }
 }

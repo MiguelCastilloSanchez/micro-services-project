@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import UpdatePassword from './UpdatePassword';
-import { logout, deleteUser, updateProfilePhoto} from '../../api/auth';
+import { logout, deleteUser, updateProfilePhoto } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, Grid, IconButton} from '@mui/material';
-import Badge from '@mui/material/Badge';
+import { Button, Typography, Grid, IconButton, Badge, Box } from '@mui/material';
 import BrushIcon from '@mui/icons-material/Brush';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import ProfileAvatar from './ProfileAvatar';
 
 const Profile = () => {
@@ -18,10 +17,9 @@ const Profile = () => {
   useEffect(() => {
     if (token) {
       const decodedToken = jwtDecode(token);
-      const username = decodedToken.sub;
-      setUsername(username);
+      setUsername(decodedToken.sub);
     }
-  }, []);
+  }, [token]);
 
   const handleLogout = async () => {
     try {
@@ -56,13 +54,9 @@ const Profile = () => {
       setSelectedFile(null);
       setError('');
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data);
-      } else {
-        setError('Error changing profile photo');
-      }
+      setError(err.response?.data || 'Error changing profile photo');
     }
-  }
+  };
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -71,23 +65,18 @@ const Profile = () => {
   const handleLogoutOnPasswordChange = () => {
     setToken(null);
   };
-  
+
   return (
-    <div>
+    <Box sx={{ p: 2 }}>
       {token ? (
         <Grid
-          sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            p: 2,
-            m: 0,
-            gap: 3,
-          }}
+          container
+          direction="column"
+          alignItems="center"
+          spacing={3}
         >
-          <>
-            <Badge 
+          <Grid item>
+            <Badge
               overlap="circular"
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               badgeContent={
@@ -96,19 +85,15 @@ const Profile = () => {
                   sx={{
                     backgroundColor: 'white',
                     borderRadius: '50%',
-                    padding: '3px',
-                    scale: 10,
+                    padding: 0.5,
                     transition: 'transform 0.2s',
                     '&:hover': {
                       transform: 'scale(1.2)',
                     },
-                    '&:active': {
-                      transform: 'scale(1.1)',
-                    },
                   }}
                   component="label"
                 >
-                  <BrushIcon sx={{color: '#240330'}} />
+                  <BrushIcon sx={{ color: '#240330' }} />
                   <input
                     type="file"
                     hidden
@@ -120,31 +105,56 @@ const Profile = () => {
             >
               <ProfileAvatar size="large" />
             </Badge>
-            {selectedFile && (
-              <Button 
+          </Grid>
+
+          {selectedFile && (
+            <Grid item>
+              <Button
                 onClick={handleChangeProfilePhoto}
                 variant="contained"
                 color="primary"
-                sx={{ mt: 2, backgroundColor: '#240330' }}
+                sx={{ backgroundColor: '#240330' }}
               >
                 Upload Photo
               </Button>
-            )}
-            <Typography variant="h5" sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}>{username}</Typography>
+            </Grid>
+          )}
+
+          <Grid item>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              {username}
+            </Typography>
+          </Grid>
+
+          <Grid item>
             <UpdatePassword token={token} onLogout={handleLogoutOnPasswordChange} />
-            <Button onClick={handleLogout} variant="contained" color="primary" sx={{ backgroundColor: 'white', width: '180px', color: 'black' }}>
+          </Grid>
+
+          <Grid item>
+            <Button
+              onClick={handleLogout}
+              variant="contained"
+              sx={{ backgroundColor: 'white', color: 'black', width: '180px' }}
+            >
               Logout
             </Button>
-            <Button onClick={handleDelete} variant="contained" color="primary" sx={{ backgroundColor: 'White', color: 'Blue', width: '180px' }}>
+          </Grid>
+
+          <Grid item>
+            <Button
+              onClick={handleDelete}
+              variant="contained"
+              sx={{ backgroundColor: 'white', color: 'red', width: '180px' }}
+            >
               Delete account
             </Button>
-          </>
+          </Grid>
         </Grid>
       ) : (
         <Typography color="error">{'User not logged'}</Typography>
       )}
-      {error && <p>{error}</p>}
-    </div>
+      {error && <Typography color="error">{error}</Typography>}
+    </Box>
   );
 };
 

@@ -1,5 +1,7 @@
 package com.example.posts_service.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,6 +25,9 @@ public class Post {
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
 }
 
