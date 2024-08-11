@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
-import { Typography, Box, Grid, Avatar, AvatarGroup, IconButton } from '@mui/material';
+import { Typography, Box, Grid, Avatar, AvatarGroup, IconButton, Menu, MenuItem, Alert } from '@mui/material';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import {deletePost} from '../../api/posts'
 
 const SmallAvatar = styled(Avatar)(({ theme }) => ({
   width: 22,
@@ -10,7 +12,32 @@ const SmallAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 const Post = ({ post }) => {
-  const { artist, song, review } = post;
+  const token = localStorage.getItem('token');
+  const [errorDelete, setErrorDelete] = useState('');
+  const { artist, song, review, id } = post;
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setErrorDelete('');
+  };
+
+  const handleDeletePost = async (e) => {
+    e.preventDefault();
+
+    try {
+      await deletePost(id, token);
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setErrorDelete(err.response.data);
+      } else {
+        setErrorDelete('Error deleting post');
+      }
+    }
+  };
 
   return (
     <Box
@@ -31,9 +58,47 @@ const Post = ({ post }) => {
         <Grid item xs={3} sm={2}>
           <Avatar sx={{ width: 56, height: 56 }} />
         </Grid>
-        <Grid item xs={9} sm={10}>
+        <Grid item xs={7} sm={9}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '18px' }}>Username</Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '14px' }}>2H Ago</Typography>
+        </Grid>
+        <Grid item xs={2} sm={1}>
+          <IconButton
+              onClick={handleOpenMenu}
+              sx={{
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.2)',
+                },
+                '&:active': {
+                  transform: 'scale(1.1)',
+                },
+              }}
+            >
+            <MoreHorizIcon sx={{ fontSize: 25 }} />
+          </IconButton>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleCloseMenu}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            MenuListProps={{
+              'aria-labelledby': 'basic-button',
+            }}
+            >
+            <MenuItem onClick={handleDeletePost} sx={{color: 'red'}}>
+              Delete Post
+            </MenuItem>
+            <MenuItem>
+              {errorDelete && (
+              <Alert severity="error">{errorDelete}</Alert>
+              )}
+            </MenuItem>
+          </Menu>
         </Grid>
       </Grid>
 

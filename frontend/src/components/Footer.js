@@ -1,6 +1,9 @@
 import React from 'react';
 import {Grid, Typography, Box} from '@mui/material';
 import CopyrightIcon from '@mui/icons-material/Copyright';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import EmailIcon from '@mui/icons-material/Email';
 
 const Footer = () => {
   return (

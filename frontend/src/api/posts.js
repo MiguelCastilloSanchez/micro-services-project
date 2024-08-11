@@ -15,3 +15,10 @@ export const getAllPosts = async (token) => {
     { headers: { Authorization: `Bearer ${token}` } }
   );
 }
+
+export const deletePost = async (postId, token) => {
+  return axios.delete(
+    `${API_URL}/delete/${postId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
