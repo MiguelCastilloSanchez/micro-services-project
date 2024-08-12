@@ -27,6 +27,7 @@ services:
     volumes:
       - ~/Documentos/external.properties:/config/external.properties
       - /app/profile-photos
+      - ~/Documentos/profile-photos/default.jpg:/app/profile-photos/default.jpg
     networks:
       - auth-network
 
@@ -48,8 +49,8 @@ services:
       - auth-network
 
   api-gateway:
-    build: ./backend/gateway
-    container_name: gateway
+    build: ./backend/api-gateway
+    container_name: api_gateway
     ports:
       - "8080:8080"
     depends_on:

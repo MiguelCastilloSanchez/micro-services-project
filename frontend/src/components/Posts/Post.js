@@ -4,6 +4,7 @@ import { Typography, Box, Grid, Avatar, AvatarGroup, IconButton, Menu, MenuItem,
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {deletePost} from '../../api/posts'
+import { formatInTimeZone } from 'date-fns-tz';
 
 const SmallAvatar = styled(Avatar)(({ theme }) => ({
   width: 22,
@@ -14,7 +15,14 @@ const SmallAvatar = styled(Avatar)(({ theme }) => ({
 const Post = ({ post }) => {
   const token = localStorage.getItem('token');
   const [errorDelete, setErrorDelete] = useState('');
-  const { artist, song, review, id } = post;
+
+
+  const { artist, song, review, id, createdAt } = post;
+
+  const timeZone = 'America/Mexico_City';
+  const formattedDate = formatInTimeZone(new Date(createdAt), timeZone, 'yyyy-MM-dd \'at\' HH:mm');
+
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleOpenMenu = (event) => {
@@ -60,7 +68,7 @@ const Post = ({ post }) => {
         </Grid>
         <Grid item xs={7} sm={9}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '18px' }}>Username</Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '14px' }}>2H Ago</Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '14px' }}>{formattedDate}</Typography>
         </Grid>
         <Grid item xs={2} sm={1}>
           <IconButton

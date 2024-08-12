@@ -2,6 +2,7 @@ package com.example.auth_service.controller;
 
 import com.example.auth_service.dto.RegisterUserRequest;
 import com.example.auth_service.dto.UpdatePasswordRequest;
+import com.example.auth_service.dto.UserDataRequest;
 import com.example.auth_service.model.User;
 import com.example.auth_service.service.TokenService;
 import com.example.auth_service.service.UserService;
@@ -31,6 +32,8 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.example.auth_service.util.PathUtil;
 import org.springframework.core.io.Resource;
 
@@ -54,6 +57,7 @@ public class AuthController {
     private static final String[] EXTENSIONS = {"jpg", "jpeg", "png"};
     private static final String UPLOAD_DIR = "/app/profile-photos/";
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList(EXTENSIONS);
+    
 
     public AuthController(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userService = userService;
@@ -108,19 +112,27 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: File type is not supported. Only JPG, JPEG, and PNG are allowed.");
         }
 
-        if (file.getSize() > 4 * 1024 * 1024) { // 4 MB
+        if (file.getSize() > 4 * 1024 * 1024) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: File size exceeds 4 MB limit.");
         }
 
         try {
-            String fileName = PathUtil.cleanPath(file.getOriginalFilename());
+            String originalFileName = PathUtil.cleanPath(file.getOriginalFilename());
+            String fileName = originalFileName;
             Path uploadPath = Paths.get(UPLOAD_DIR);
 
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            if (user.getProfilePhoto() != null) {
+            int counter = 1;
+            while (Files.exists(uploadPath.resolve(fileName))) {
+                String baseName = FilenameUtils.getBaseName(originalFileName);
+                fileName = baseName + "_" + counter + "." + fileExtension;
+                counter++;
+            }
+
+            if (!user.getProfilePhoto().equals("default.jpg")) {
                 Path oldFilePath = Paths.get(UPLOAD_DIR).resolve(user.getProfilePhoto());
                 Files.deleteIfExists(oldFilePath);
             }
@@ -217,6 +229,27 @@ public class AuthController {
 
         userService.deleteUser(username);
         return ResponseEntity.ok("User deleted successfully");
+    }
+
+    @GetMapping("/all-profiles")
+    public ResponseEntity<List<UserDataRequest>> getAllUserProfiles() {
+        List<User> users = userService.getAllUsers();
+    
+        List<UserDataRequest> userProfiles = users.stream().map(user -> {
+            UserDataRequest dto = new UserDataRequest();
+            dto.setId(user.getId());
+            dto.setUsername(user.getUsername());
+            dto.setProfilePhotoName(user.getProfilePhoto());
+            try {
+                String photoPath = Paths.get(UPLOAD_DIR).resolve(user.getProfilePhoto()).toString();
+                dto.setProfilePhotoThumbnail(userService.generateThumbnail(photoPath));
+            } catch (IOException e) {
+                dto.setProfilePhotoThumbnail(null);
+            }
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(userProfiles);
     }
 
 }

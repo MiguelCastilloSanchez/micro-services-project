@@ -11,7 +11,13 @@ export const createPost = async (artist, song, review, token) => {
 };
 
 export const getAllPosts = async (token) => {
-  return axios.get(`${API_URL}/all`, 
+  return axios.get(`${API_URL}/all-posts`, 
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}
+
+export const getAllLikes = async (token) => {
+  return axios.get(`${API_URL}/all-likes`, 
     { headers: { Authorization: `Bearer ${token}` } }
   );
 }

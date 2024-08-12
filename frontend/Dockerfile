@@ -9,6 +9,8 @@ RUN npm install react-router-dom axios
 RUN npm install @mui/material @emotion/react @emotion/styled
 RUN npm install @mui/icons-material @mui/material @emotion/styled @emotion/react
 RUN npm install jwt-decode
+RUN npm install date-fns-tz
+RUN npm install react-query
 
 COPY . .
 

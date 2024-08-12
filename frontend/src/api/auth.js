@@ -2,6 +2,13 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/user';
 
+export const fetchUserProfiles = async () => {
+  const response = await axios.get(`${API_URL}/all-profiles`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export const register = async (username, password, email) => {
   return axios.post(`${API_URL}/register`, { username, password, email });
 };

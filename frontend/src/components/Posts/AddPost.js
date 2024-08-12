@@ -54,8 +54,8 @@ const AddPost = ({ token }) => {
           value={artist}
           onChange={(e) => setArtist(e.target.value)}
           fullWidth
-          inputProps={{ maxLength: 20 }}
-          helperText={`${artist.length}/20`}
+          inputProps={{ maxLength: 40 }}
+          helperText={`${artist.length}/40`}
         />
 
         <TextField
@@ -63,8 +63,8 @@ const AddPost = ({ token }) => {
           value={song}
           onChange={(e) => setSong(e.target.value)}
           fullWidth
-          inputProps={{ maxLength: 20 }}
-          helperText={`${song.length}/20`}
+          inputProps={{ maxLength: 40 }}
+          helperText={`${song.length}/40`}
         />
 
         <TextField

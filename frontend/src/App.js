@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
@@ -17,12 +20,14 @@ const App = () => {
           element={
             <>
               <Header />
+              <QueryClientProvider client={queryClient}>
               <main>
                 <Routes>
                   <Route path="*" element={<Home />} />
                   <Route path="/home" element={<Home />} />
                 </Routes>
               </main>
+              </QueryClientProvider>
               <Footer />
             </>
           }

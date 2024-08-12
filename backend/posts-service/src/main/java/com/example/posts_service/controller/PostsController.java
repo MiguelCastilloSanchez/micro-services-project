@@ -1,15 +1,19 @@
 package com.example.posts_service.controller;
 
 import com.example.posts_service.dto.CreatePostRequest;
+import com.example.posts_service.dto.GetLikesRequest;
+import com.example.posts_service.model.Like;
 import com.example.posts_service.model.Post;
 import com.example.posts_service.service.LikeService;
 import com.example.posts_service.service.PostService;
 import com.example.posts_service.util.JwtUtil;
 import jakarta.validation.Valid;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,19 +56,36 @@ public class PostsController {
         post.setArtist(request.getArtist());
         post.setSong(request.getSong());
         post.setReview(request.getReview());
-        post.setCreatedAt(LocalDateTime.now());
+        post.setCreatedAt(ZonedDateTime.now());
         
         Post newPost = postService.createPost(post);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Post created successfully");
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all-posts")
     public ResponseEntity<List<Post>> getAllPosts() {
         List<Post> posts = postService.getAllPosts();
         Collections.reverse(posts);
 
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/all-likes")
+    public ResponseEntity<List<GetLikesRequest>> getAllLikes() {
+        List<Like> likes = likeService.getAllLikes();
+    
+        Map<Long, List<Long>> likesByPost = likes.stream()
+            .collect(Collectors.groupingBy(
+                like -> like.getPost().getId(),
+                Collectors.mapping(Like::getUserId, Collectors.toList())
+            ));
+    
+        List<GetLikesRequest> getLikesRequests = likesByPost.entrySet().stream()
+            .map(entry -> new GetLikesRequest(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
+    
+        return ResponseEntity.ok(getLikesRequests);
     }
 
     @PostMapping("/like/{postId}")
