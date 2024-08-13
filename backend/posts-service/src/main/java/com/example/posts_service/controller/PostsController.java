@@ -68,20 +68,12 @@ public class PostsController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Post created successfully");
     }
 
-    @GetMapping("/all-posts")
-    public ResponseEntity<List<Post>> getAllPosts() {
-        List<Post> posts = postService.getAllPosts();
-        Collections.reverse(posts);
-
-        return ResponseEntity.ok(posts);
-    }
-
-    @GetMapping("/posts")
+    @GetMapping("/all-posts/{page}")
     public ResponseEntity<Page<GetPostsRequest>> getAllPostsPaginated(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @PathVariable int page
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<GetPostsRequest> postsPage = postService.getAllPostsPaginated(pageable);
         return ResponseEntity.ok(postsPage);
     }

@@ -32,7 +32,7 @@ const Home = () => {
     isLoading,
   } = useInfiniteQuery(
     'posts',
-    async ({ pageParam = 1 }) => {
+    async ({ pageParam = 0 }) => {
       const response = await getAllPostsPaginated(pageParam, token);
       return {
         posts: response.content,

@@ -14,7 +14,7 @@ export const getAllPostsPaginated = async (page, token) => {
   if (!token) {
     throw new Error('No token provided');
   }
-  const response = await axios.get(`${API_URL}/posts?page=${page}`,
+  const response = await axios.get(`${API_URL}/all-posts/${page}`,
     { headers: { Authorization: `Bearer ${token}` } });
   return response.data;
 };
