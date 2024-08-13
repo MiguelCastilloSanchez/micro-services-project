@@ -2,8 +2,8 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/user';
 
-export const fetchUserProfiles = async () => {
-  const response = await axios.get(`${API_URL}/all-profiles`, {
+export const getUserProfileById = async (userId, token) => {
+  const response = await axios.get(`${API_URL}/profile/${userId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;

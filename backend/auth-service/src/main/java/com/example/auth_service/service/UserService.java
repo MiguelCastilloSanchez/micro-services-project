@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
@@ -36,6 +37,14 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public boolean userExistsById(Long id){
+        return userRepository.existsById(id);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.getById(id);
     }
 
     @Autowired

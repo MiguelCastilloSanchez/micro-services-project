@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.example.auth_service.util.PathUtil;
 import org.springframework.core.io.Resource;
@@ -79,6 +78,7 @@ public class AuthController {
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setProfilePhoto("default.jpg");
         userService.saveUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
@@ -231,25 +231,26 @@ public class AuthController {
         return ResponseEntity.ok("User deleted successfully");
     }
 
-    @GetMapping("/all-profiles")
-    public ResponseEntity<List<UserDataRequest>> getAllUserProfiles() {
-        List<User> users = userService.getAllUsers();
-    
-        List<UserDataRequest> userProfiles = users.stream().map(user -> {
-            UserDataRequest dto = new UserDataRequest();
-            dto.setId(user.getId());
-            dto.setUsername(user.getUsername());
-            dto.setProfilePhotoName(user.getProfilePhoto());
-            try {
-                String photoPath = Paths.get(UPLOAD_DIR).resolve(user.getProfilePhoto()).toString();
-                dto.setProfilePhotoThumbnail(userService.generateThumbnail(photoPath));
-            } catch (IOException e) {
-                dto.setProfilePhotoThumbnail(null);
-            }
-            return dto;
-        }).collect(Collectors.toList());
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<UserDataRequest> getUserProfileById(@PathVariable Long userId) {
 
-        return ResponseEntity.ok(userProfiles);
+        if (!userService.userExistsById(userId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        User user = userService.getUserById(userId);
+        
+        UserDataRequest dto = new UserDataRequest();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setProfilePhotoName(user.getProfilePhoto());
+        try {
+            String photoPath = Paths.get(UPLOAD_DIR).resolve(user.getProfilePhoto()).toString();
+            dto.setProfilePhotoThumbnail(userService.generateThumbnail(photoPath));
+        } catch (IOException e) {
+            dto.setProfilePhotoThumbnail(null);
+        }
+        return ResponseEntity.ok(dto);
     }
 
 }

@@ -10,16 +10,18 @@ export const createPost = async (artist, song, review, token) => {
   );
 };
 
-export const getAllPosts = async (token) => {
-  return axios.get(`${API_URL}/all-posts`, 
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-}
+export const getAllPostsPaginated = async (page, token) => {
+  if (!token) {
+    throw new Error('No token provided');
+  }
+  const response = await axios.get(`${API_URL}/posts?page=${page}`,
+    { headers: { Authorization: `Bearer ${token}` } });
+  return response.data;
+};
 
-export const getAllLikes = async (token) => {
-  return axios.get(`${API_URL}/all-likes`, 
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+export const getAllLikes = async (postId, token) => {
+  return axios.get(`${API_URL}/all-likes/${postId}`,
+    { headers: { Authorization: `Bearer ${token}` } });
 }
 
 export const deletePost = async (postId, token) => {
@@ -28,3 +30,17 @@ export const deletePost = async (postId, token) => {
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
+
+export const like = async (postId, token) => {
+  const response = await axios.post(
+    `${API_URL}/like/${postId}`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const unlike = async (postId, token) => {
+  return axios.delete(`${API_URL}/unlike/${postId}`,
+    { headers: { Authorization: `Bearer ${token}` } });
+}

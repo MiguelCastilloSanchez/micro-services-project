@@ -2,6 +2,7 @@ package com.example.posts_service.controller;
 
 import com.example.posts_service.dto.CreatePostRequest;
 import com.example.posts_service.dto.GetLikesRequest;
+import com.example.posts_service.dto.GetPostsRequest;
 import com.example.posts_service.model.Like;
 import com.example.posts_service.model.Post;
 import com.example.posts_service.service.LikeService;
@@ -16,6 +17,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -58,7 +63,7 @@ public class PostsController {
         post.setReview(request.getReview());
         post.setCreatedAt(ZonedDateTime.now());
         
-        Post newPost = postService.createPost(post);
+        postService.createPost(post);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Post created successfully");
     }
@@ -71,23 +76,28 @@ public class PostsController {
         return ResponseEntity.ok(posts);
     }
 
-    @GetMapping("/all-likes")
-    public ResponseEntity<List<GetLikesRequest>> getAllLikes() {
-        List<Like> likes = likeService.getAllLikes();
-    
-        Map<Long, List<Long>> likesByPost = likes.stream()
-            .collect(Collectors.groupingBy(
-                like -> like.getPost().getId(),
-                Collectors.mapping(Like::getUserId, Collectors.toList())
-            ));
-    
-        List<GetLikesRequest> getLikesRequests = likesByPost.entrySet().stream()
-            .map(entry -> new GetLikesRequest(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
-    
-        return ResponseEntity.ok(getLikesRequests);
+    @GetMapping("/posts")
+    public ResponseEntity<Page<GetPostsRequest>> getAllPostsPaginated(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<GetPostsRequest> postsPage = postService.getAllPostsPaginated(pageable);
+        return ResponseEntity.ok(postsPage);
     }
 
+    @GetMapping("/all-likes/{postId}")
+    public ResponseEntity<List<Long>> getAllLikes(@PathVariable Long postId) {
+        List<Like> likes = likeService.getAllLikes();
+        
+        List<Long> userIds = likes.stream()
+            .filter(like -> like.getPost().getId().equals(postId))
+            .map(Like::getUserId)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(userIds);
+    }
+    
     @PostMapping("/like/{postId}")
     public ResponseEntity<String> likePost(@PathVariable Long postId, @RequestHeader("Authorization") String token) {
         if (!postService.doesPostExist(postId)){

@@ -24,7 +24,7 @@ public class User {
     @Email(message = "Email should be valid")
     private String email;
     
-    @NotEmpty(message = "Photo is required")
+    @Column(name = "profile_photo")
     private String profilePhoto;
 
 }

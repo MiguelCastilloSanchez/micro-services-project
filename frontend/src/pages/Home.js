@@ -3,39 +3,78 @@ import { Grid, Box, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddPost from '../components/Posts/AddPost';
 import Post from '../components/Posts/Post';
-import { getAllPosts } from '../api/posts';
+import { useQueryClient, useInfiniteQuery } from 'react-query';
+import { getAllPostsPaginated } from '../api/posts';
 
 const Home = () => {
   const [token, setToken] = useState(null);
-  const [posts, setPosts] = useState([]);
+  const [isTokenLoaded, setIsTokenLoaded] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
-    setToken(savedToken);
     if (!savedToken) {
       navigate('/login', { state: { alert: 'Please log in to enter.' } });
+    } else {
+      setToken(savedToken);
     }
+    setIsTokenLoaded(true);
   }, [navigate]);
 
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery(
+    'posts',
+    async ({ pageParam = 1 }) => {
+      const response = await getAllPostsPaginated(pageParam, token);
+      return {
+        posts: response.content,
+        nextPage: response.pageable.pageNumber + 1 < response.totalPages ? response.pageable.pageNumber + 1 : undefined
+      };
+    },
+    {
+      enabled: !!token,
+      getNextPageParam: (lastPage) => lastPage.nextPage,
+    }
+  );
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await getAllPosts(token);
-        setPosts(response.data);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
+    const handleScroll = (e) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.target;
+      if (scrollTop + clientHeight >= scrollHeight && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
       }
     };
 
-    if (token) {
-      fetchPosts();
+    const scrollContainer = document.querySelector('.scroll-container');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
     }
-  }, [token]);
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  if (!isTokenLoaded || isLoading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
-    <Box 
+    <Box
       sx={{
         backgroundColor: '#E4DEE7',
         minHeight: '100vh',
@@ -43,16 +82,11 @@ const Home = () => {
         px: 2,
       }}
     >
-      <Grid 
-        container 
-        spacing={2} 
-        justifyContent="center"
-        sx={{gap: 2}}
-      >
-        <Grid 
-          item 
-          xs={12} 
-          md={7} 
+      <Grid container spacing={2} justifyContent="center" sx={{ gap: 2 }}>
+        <Grid
+          item
+          xs={12}
+          md={7}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -64,17 +98,22 @@ const Home = () => {
             height: { xs: 'auto', md: '90vh' },
             overflowY: 'scroll',
             gap: 3,
+            overflowX: 'hidden', // Previene el desbordamiento horizontal
           }}
+          className="scroll-container" // Añadir clase para selección en useEffect
         >
-          {posts.map((post, index) => (
-            <Post key={index} post={post} />
-          ))}
+          {data?.pages.map((page) =>
+            page.posts.map((post) => (
+              <Post key={post.id} post={post} />
+            ))
+          )}
+          {isFetchingNextPage && <div>Cargando más posts...</div>}
         </Grid>
-        
-        <Grid 
-          item 
-          xs={12} 
-          md={4} 
+
+        <Grid
+          item
+          xs={12}
+          md={4}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -87,7 +126,7 @@ const Home = () => {
             height: { xs: 'auto', md: '90vh' },
           }}
         >
-          <AddPost token={token}/>
+          <AddPost token={token} />
         </Grid>
       </Grid>
     </Box>
