@@ -1,27 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Grid, Box, useTheme } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useQueryClient, useInfiniteQuery } from 'react-query';
 import AddPost from '../components/Posts/AddPost';
 import Post from '../components/Posts/Post';
-import { useQueryClient, useInfiniteQuery } from 'react-query';
 import { getAllPostsPaginated } from '../api/posts';
 
 const Home = () => {
-  const [token, setToken] = useState(null);
-  const [isTokenLoaded, setIsTokenLoaded] = useState(false);
-  const navigate = useNavigate();
   const theme = useTheme();
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    if (!savedToken) {
-      navigate('/login', { state: { alert: 'Please log in to enter.' } });
-    } else {
-      setToken(savedToken);
-    }
-    setIsTokenLoaded(true);
-  }, [navigate]);
+  const token = localStorage.getItem('token');
 
   const {
     data,
@@ -36,7 +23,10 @@ const Home = () => {
       const response = await getAllPostsPaginated(pageParam, token);
       return {
         posts: response.content,
-        nextPage: response.pageable.pageNumber + 1 < response.totalPages ? response.pageable.pageNumber + 1 : undefined
+        nextPage:
+          response.pageable.pageNumber + 1 < response.totalPages
+            ? response.pageable.pageNumber + 1
+            : undefined,
       };
     },
     {
@@ -45,33 +35,16 @@ const Home = () => {
     }
   );
 
-  useEffect(() => {
-    const handleScroll = (e) => {
-      const { scrollTop, scrollHeight, clientHeight } = e.target;
-      if (scrollTop + clientHeight >= scrollHeight && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    };
-
-    const scrollContainer = document.querySelector('.scroll-container');
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll);
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (
+      scrollTop + clientHeight >= scrollHeight &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
     }
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  if (!isTokenLoaded || isLoading) {
-    return <div>Cargando...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
+  };
 
   return (
     <Box
@@ -98,14 +71,13 @@ const Home = () => {
             height: { xs: 'auto', md: '90vh' },
             overflowY: 'scroll',
             gap: 3,
-            overflowX: 'hidden', // Previene el desbordamiento horizontal
+            overflowX: 'hidden',
           }}
-          className="scroll-container" // Añadir clase para selección en useEffect
+          className="scroll-container"
+          onScroll={handleScroll}
         >
           {data?.pages.map((page) =>
-            page.posts.map((post) => (
-              <Post key={post.id} post={post} />
-            ))
+            page.posts.map((post) => <Post key={post.id} post={post} />)
           )}
           {isFetchingNextPage && <div>Cargando más posts...</div>}
         </Grid>

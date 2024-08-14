@@ -5,13 +5,6 @@ import loginImage from '../assets/caracal.jpeg';
 import { useLocation } from 'react-router-dom';
 
 const LoginPage = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.state && location.state.alert) {
-      alert(location.state.alert);
-    }
-  }, [location]);
 
   return (
     <Grid container component="main" sx={{ height: '100vh', margin: 0, padding: 0 }}>

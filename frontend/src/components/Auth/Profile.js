@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import UpdatePassword from './UpdatePassword';
 import { logout, deleteUser, updateProfilePhoto } from '../../api/auth';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, Grid, IconButton, Badge, Box } from '@mui/material';
+import { Button, Typography, Grid, IconButton, Badge, Box, Alert } from '@mui/material';
 import BrushIcon from '@mui/icons-material/Brush';
 import {jwtDecode} from 'jwt-decode';
 import ProfileAvatar from './ProfileAvatar';
@@ -153,7 +153,9 @@ const Profile = () => {
       ) : (
         <Typography color="error">{'User not logged'}</Typography>
       )}
-      {error && <Typography color="error">{error}</Typography>}
+      {error && (
+      <Alert severity="error">{error}</Alert>
+      )}
     </Box>
   );
 };

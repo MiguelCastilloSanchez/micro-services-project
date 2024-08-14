@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { login } from '../../api/auth';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
@@ -53,7 +53,7 @@ const Login = () => {
         fullWidth
       />
       {error && (
-        <Typography color="error">{error}</Typography>
+      <Alert severity="error">{error}</Alert>
       )}
       <Button type="submit" variant="contained" color="primary" sx={{ backgroundColor: '#240330' }}>
         Log in

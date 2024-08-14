@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updatePassword, logout } from '../../api/auth';
-import { TextField, Button, Typography, Box } from '@mui/material';
+import { TextField, Button, Alert, Box } from '@mui/material';
 
 const UpdatePassword = ({ token, onLogout }) => {
   const [oldPassword, setOldPassword] = useState('');
@@ -47,7 +47,9 @@ const UpdatePassword = ({ token, onLogout }) => {
         onChange={(e) => setNewPassword(e.target.value)}
         fullWidth
       />
-      {error && <Typography color="error">{error}</Typography>}
+      {error && (
+      <Alert severity="error" sx={{backgroundColor: '#E4DEE7'}}>{error}</Alert>
+      )}
       <Button type="submit" variant="contained" color="primary" sx={{ backgroundColor: '#240330' }}>
         Change password
       </Button>

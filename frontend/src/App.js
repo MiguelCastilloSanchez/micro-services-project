@@ -6,6 +6,8 @@ import RegisterPage from './pages/RegisterPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import NotFound from './pages/NotFound';
+import PrivateRoute from './components/PrivateRoute'
 
 const queryClient = new QueryClient();
 
@@ -15,23 +17,22 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<><LoginPage /><Footer /></>} />
         <Route path="/register" element={<><RegisterPage /><Footer /></>} />
+        <Route path="/*" element={<><NotFound /><Footer /></>} />
         <Route
-          path="/*"
+          path="/home"
           element={
-            <>
-              <Header />
-              <QueryClientProvider client={queryClient}>
-              <main>
-                <Routes>
-                  <Route path="*" element={<Home />} />
-                  <Route path="/home" element={<Home />} />
-                </Routes>
-              </main>
-              </QueryClientProvider>
-              <Footer />
-            </>
+            <PrivateRoute>
+              <>
+                <Header />
+                <QueryClientProvider client={queryClient}>
+                <Home />
+                </QueryClientProvider>
+                <Footer />
+              </>
+            </PrivateRoute>
           }
         />
+        
       </Routes>
     </div>
   );
