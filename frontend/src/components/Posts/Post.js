@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Grid, Avatar} from '@mui/material';
+import { Typography, Box, Grid, Avatar } from '@mui/material';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getUserProfileById } from '../../api/auth';
 import OptionsPost from './OptionsPost';
 import LikesPost from './LikesPost';
 
-const Post = ({ post }) => {
+const Post = ({ post, onLikeChange, onDelete }) => {
   const token = localStorage.getItem('token');
   const [error, setError] = useState('');
   const [userProfile, setUserProfile] = useState(null);
@@ -26,7 +26,7 @@ const Post = ({ post }) => {
     };
 
     fetchUserProfile();
-  }, [userId]);
+  }, [userId, token]);
 
   return (
     <Box
@@ -60,7 +60,7 @@ const Post = ({ post }) => {
           </Typography>
         </Grid>
         <Grid item xs={2} sm={1}>
-          <OptionsPost token={token} id={id} />
+          <OptionsPost token={token} id={id} onDelete={onDelete} />
         </Grid>
       </Grid>
 
@@ -79,7 +79,7 @@ const Post = ({ post }) => {
         {review}
       </Typography>
 
-      <LikesPost token={token} postId={id} />
+      <LikesPost token={token} postId={id} onLikeChange={onLikeChange} />
     </Box>
   );
 };

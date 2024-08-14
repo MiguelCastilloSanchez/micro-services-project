@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { createPost } from '../../api/posts'
+import { createPost } from '../../api/posts';
 import { TextField, Button, Typography, Box, Container, Alert } from '@mui/material';
 
-const AddPost = ({ token }) => {
+const AddPost = ({ token, onPostAdded }) => {
   const [artist, setArtist] = useState('');
   const [song, setSong] = useState('');
   const [review, setReview] = useState('');
@@ -10,7 +10,7 @@ const AddPost = ({ token }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); 
+    setError('');
 
     if (!artist || !song || !review) {
       setError('Please fill in all fields.');
@@ -22,6 +22,7 @@ const AddPost = ({ token }) => {
       setArtist('');
       setSong('');
       setReview('');
+      onPostAdded(); // Llama a la función para invalidar la consulta de posts
     } catch (err) {
       if (err.response && err.response.data) {
         setError(err.response.data);
@@ -68,7 +69,7 @@ const AddPost = ({ token }) => {
         />
 
         <TextField
-          label="Your opinion..."
+          label="Why is this song so perfect..."
           value={review}
           onChange={(e) => setReview(e.target.value)}
           multiline

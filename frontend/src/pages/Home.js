@@ -46,6 +46,11 @@ const Home = () => {
     }
   };
 
+  const handleDeletePost = (postId) => {
+    // Invalidate queries to update the list of posts
+    queryClient.invalidateQueries('posts');
+  };
+
   return (
     <Box
       sx={{
@@ -77,7 +82,13 @@ const Home = () => {
           onScroll={handleScroll}
         >
           {data?.pages.map((page) =>
-            page.posts.map((post) => <Post key={post.id} post={post} />)
+            page.posts.map((post) => (
+              <Post
+                key={post.id}
+                post={post}
+                onDelete={handleDeletePost} // Pass the delete handler to Post component
+              />
+            ))
           )}
           {isFetchingNextPage && <div>Cargando más posts...</div>}
         </Grid>
@@ -98,7 +109,7 @@ const Home = () => {
             height: { xs: 'auto', md: '90vh' },
           }}
         >
-          <AddPost token={token} />
+          <AddPost token={token} onPostAdded={() => queryClient.invalidateQueries('posts')} />
         </Grid>
       </Grid>
     </Box>

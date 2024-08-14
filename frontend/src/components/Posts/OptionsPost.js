@@ -3,7 +3,7 @@ import { Box, IconButton, Menu, MenuItem, Alert } from '@mui/material';
 import { deletePost } from '../../api/posts';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
-const OptionsPost = ({ token, id }) => {
+const OptionsPost = ({ token, id, onDelete }) => {
   const [error, setError] = useState('');
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -22,6 +22,9 @@ const OptionsPost = ({ token, id }) => {
 
     try {
       await deletePost(id, token);
+      if (onDelete) {
+        onDelete(id); // Notify the parent component about the deletion
+      }
     } catch (err) {
       if (err.response && err.response.data) {
         setError(err.response.data);
@@ -33,42 +36,42 @@ const OptionsPost = ({ token, id }) => {
 
   return (
     <Box>
-        <IconButton
-            onClick={handleOpenMenu}
-            sx={{
-            transition: 'transform 0.2s',
-            '&:hover': {
-                transform: 'scale(1.2)',
-            },
-            '&:active': {
-                transform: 'scale(1.1)',
-            },
-            }}
-        >
+      <IconButton
+        onClick={handleOpenMenu}
+        sx={{
+          transition: 'transform 0.2s',
+          '&:hover': {
+            transform: 'scale(1.2)',
+          },
+          '&:active': {
+            transform: 'scale(1.1)',
+          },
+        }}
+      >
         <MoreHorizIcon sx={{ fontSize: 25 }} />
-        </IconButton>
-        <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleCloseMenu}
-            anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-            }}
-            MenuListProps={{
-                'aria-labelledby': 'basic-button',
-            }}
-        >
-        <MenuItem onClick={handleDeletePost} sx={{color: 'red'}}>
-            Delete Post
+      </IconButton>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleCloseMenu}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={handleDeletePost} sx={{ color: 'red' }}>
+          Delete Post
         </MenuItem>
         <MenuItem>
-            {error && (
+          {error && (
             <Alert severity="error">{error}</Alert>
-            )}
+          )}
         </MenuItem>
-        </Menu>
+      </Menu>
     </Box>
   );
 };

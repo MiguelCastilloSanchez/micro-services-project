@@ -4,50 +4,50 @@ import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { styled } from '@mui/material/styles';
 import { like, unlike, getAllLikes } from '../../api/posts';
-import {  getUserProfileById } from '../../api/auth';
-import { jwtDecode } from 'jwt-decode'; 
+import { getUserProfileById } from '../../api/auth';
+import { jwtDecode } from 'jwt-decode';
 
 const SmallAvatar = styled(Avatar)(({ theme }) => ({
-    width: 22,
-    height: 22,
-    border: `2px solid ${theme.palette.background.paper}`,
+  width: 22,
+  height: 22,
+  border: `2px solid ${theme.palette.background.paper}`,
 }));
 
-const LikesPost = ({ token, postId }) => {
-    const [currentUserId, setCurrentUserId] = useState('');
-    const [likes, setLikes] = useState([]);
-    const [hasLiked, setHasLiked] = useState(false);
-    const [error, setError] = useState('');
+const LikesPost = ({ token, postId, onLikeChange }) => {
+  const [currentUserId, setCurrentUserId] = useState('');
+  const [likes, setLikes] = useState([]);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [error, setError] = useState('');
 
-    useEffect(() => {
-        if (token) {
-          const decodedToken = jwtDecode(token);
-          setCurrentUserId(decodedToken.userId);
-        }
-    }, [token]);
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setCurrentUserId(decodedToken.userId);
+    }
+  }, [token]);
 
-    useEffect(() => {
-        const fetchLikes = async () => {
-        try {
-            const response = await getAllLikes(postId, token);
-            const likesData = await Promise.all(
-            response.data.map(async (userId) => {
-                const userProfile = await getUserProfileById(userId, token);
-                return {
-                id: userId,
-                username: userProfile.username,
-                profilePhotoThumbnail: userProfile.profilePhotoThumbnail,
-                };
-            })
-            );
-            setLikes(likesData);
-            setHasLiked(likesData.some(user => user.id === currentUserId));
-        } catch (err) {
-            setError('Error fetching likes data.');
-        }
-        };
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const response = await getAllLikes(postId, token);
+        const likesData = await Promise.all(
+          response.data.map(async (userId) => {
+            const userProfile = await getUserProfileById(userId, token);
+            return {
+              id: userId,
+              username: userProfile.username,
+              profilePhotoThumbnail: userProfile.profilePhotoThumbnail,
+            };
+          })
+        );
+        setLikes(likesData);
+        setHasLiked(likesData.some(user => user.id === currentUserId));
+      } catch (err) {
+        setError('Error fetching likes data.');
+      }
+    };
 
-        fetchLikes();
+    fetchLikes();
   }, [postId, token, currentUserId]);
 
   const handleLikeClick = async () => {
@@ -60,7 +60,7 @@ const LikesPost = ({ token, postId }) => {
       setHasLiked(!hasLiked);
       const response = await getAllLikes(postId, token);
       const likesData = await Promise.all(
-        response.data.likes.map(async (userId) => {
+        response.data.map(async (userId) => {
           const userProfile = await getUserProfileById(userId, token);
           return {
             id: userId,
@@ -70,6 +70,9 @@ const LikesPost = ({ token, postId }) => {
         })
       );
       setLikes(likesData);
+      if (onLikeChange) {
+        onLikeChange(); // Notify the parent component of the like change
+      }
     } catch (err) {
       setError('Error updating like status.');
     }
