@@ -47,7 +47,6 @@ const Home = () => {
   };
 
   const handleDeletePost = (postId) => {
-    // Invalidate queries to update the list of posts
     queryClient.invalidateQueries('posts');
   };
 
@@ -86,7 +85,7 @@ const Home = () => {
               <Post
                 key={post.id}
                 post={post}
-                onDelete={handleDeletePost} // Pass the delete handler to Post component
+                onDelete={handleDeletePost}
               />
             ))
           )}

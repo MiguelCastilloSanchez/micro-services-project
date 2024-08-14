@@ -22,7 +22,7 @@ const AddPost = ({ token, onPostAdded }) => {
       setArtist('');
       setSong('');
       setReview('');
-      onPostAdded(); // Llama a la función para invalidar la consulta de posts
+      onPostAdded();
     } catch (err) {
       if (err.response && err.response.data) {
         setError(err.response.data);

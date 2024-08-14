@@ -62,13 +62,13 @@ services:
     networks:
       - auth-network
 
-  #frontend:
-  #  build: ./frontend
-  #  container_name: frontend
-  #  ports:
-  #    - "3000:3000"
-  #  networks:
-  #    - auth-network
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - auth-network
 
 networks:
   auth-network:

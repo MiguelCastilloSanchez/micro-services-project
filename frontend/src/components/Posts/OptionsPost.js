@@ -23,7 +23,7 @@ const OptionsPost = ({ token, id, onDelete }) => {
     try {
       await deletePost(id, token);
       if (onDelete) {
-        onDelete(id); // Notify the parent component about the deletion
+        onDelete(id);
       }
     } catch (err) {
       if (err.response && err.response.data) {

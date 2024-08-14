@@ -71,7 +71,7 @@ const LikesPost = ({ token, postId, onLikeChange }) => {
       );
       setLikes(likesData);
       if (onLikeChange) {
-        onLikeChange(); // Notify the parent component of the like change
+        onLikeChange();
       }
     } catch (err) {
       setError('Error updating like status.');
