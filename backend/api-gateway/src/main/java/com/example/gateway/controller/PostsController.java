@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostsController {
 
     private final WebClient webClient;
@@ -29,6 +29,11 @@ public class PostsController {
             jakarta.servlet.http.HttpServletRequest request) {
 
         String requestPath = request.getRequestURI();
+
+        if (requestPath.startsWith("/api")) {
+            requestPath = requestPath.substring(4);
+        }
+        
         String uri = authServiceUrl + requestPath;
 
         return webClient.method(method)

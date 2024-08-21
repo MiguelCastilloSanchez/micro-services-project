@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/posts';
+const API_URL = 'http://localhost:25565/api/posts';
 
 export const createPost = async (artist, song, review, token) => {
   return axios.post(

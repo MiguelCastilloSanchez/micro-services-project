@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class AuthController {
 
     private final WebClient webClient;
@@ -31,6 +31,11 @@ public class AuthController {
             HttpServletRequest request) {
 
         String requestPath = request.getRequestURI();
+
+        if (requestPath.startsWith("/api")) {
+            requestPath = requestPath.substring(4);
+        }
+
         String uri = authServiceUrl + requestPath;
 
         return webClient.method(method)
