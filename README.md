@@ -1,4 +1,4 @@
-# Vlog Website created with a microservices architecture 
+# Blog Website created with a microservices architecture 
 
 ## ⚠️ WARNING
 
